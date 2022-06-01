@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+    <head>
+    	<meta charset='UTF-8'>
+    	<meta name='viewport' content='width=device-width, initial-scale=1.0'> 
+    	<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <link href='css/style.css' rel='stylesheet' type='text/css' media='all' />
+    	<link rel="manifest" href="/manifest.json">
+        <script src="/app.js"></script>
+        <title>Pet lovers cafes</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Comfortaa&display=swap" rel="stylesheet">
+        <script src="https://api-maps.yandex.ru/2.1/?apikey=245c8eaa-f69e-45b7-a9e0-da3ee3f63b71&lang=ru_RU" type="text/javascript"></script>
+  </head>
+  <body>
+	<?php include "blocks/header.php";?>
+		
+    <div class='main'>
+        <div class="slider_area">
+            <div class="single_slider slider_bg_1 ">
+                <div class="container">
+                    <div class="row">
+                            <div class="slider_text">
+                                <h3>We Care <br> <span>Your Pets</span></h3>
+                                <p>Теперь не нужно выбирать между походом в кафе и временем, проведённым с домашним питомцем. <br>
+                                    Здесь вы найдёте список заведений, в которых можно посидеть вместе со своим любимцем.</p>
+                            </div>
+                    </div>
+                </div>
+                <div class="dog_thumb">
+                    <img src="/img/dog_icon.png" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="service_area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-7 col-md-10">
+                        <div class="section_title  ">
+                            <h3>Services for every dog</h3>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.</p>
+                        </div>
+                    </div>
+                </div>
+                
+
+                    <?php
+                        include("incdb.php");  
+            
+                        $cafe=mysql_query("SELECT * FROM time_cafes",$db);
+                        $i=1;
+                        while($mas=mysql_fetch_array($cafe))
+                        {
+                            ?>
+                        <div class="row">
+                            <div class="col-1-3">
+                                <div class="single_service">
+                                    <div class="service_thumb service_icon     ">
+                                        <div class="service_icon">
+                                            <img src='<?php echo $mas['img'] ; ?>' width='200px' height='150px' alt='тайм-кафе с животными'>
+                                        </div>
+                                    </div>
+                                    <div class="service_content   ">
+                                             
+                                            <a href="<?php echo $mas['link']; ?>"><h3><?php echo $mas['name']; ?></h3></a>
+                                            
+                                            <?php echo $mas['opisanie']; ?>
+                                            <br>
+                                                <p><?php echo $mas['address']; ?></p>
+                                                <br>
+                                                <p><?php echo $mas['telephone']; ?></p>
+                                                <br>
+                                                <p><?php echo $mas['time_open']; ?></p>
+                                                <br>
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>               
+
+        <div id="map" style="width: 600px; height: 400px"></div>
+        <script type="text/javascript">
+            ymaps.ready(init);
+
+            function init() {
+                
+                var myMap = new ymaps.Map('map', {
+                    center: [55.753994, 37.622093],
+                    zoom: 9
+                });
+            
+                <?php
+                        
+                        $zap = mysql_query("SELECT name, address FROM time_cafes limit 1");
+                    //	$list = mysql_fetch_array($zap);
+                    //	foreach ($list as $row){   
+                        while($row = mysql_fetch_array($zap)) {  ?> //foreach ($list as $row): 
+                            // Строка с адресом, который необходимо геокодировать
+                            var address = '<?php echo trim($row['address']); ?>';
+                            var geocoder = ymaps.geocode(address);
+                 
+                    // После того, как поиск вернул результат, вызывается callback-функция
+                            geocoder.then(
+                                function (res) {
+                 
+                            // координаты объекта
+                                    var coordinates = res.geoObjects.get(0).geometry.getCoordinates();
+                                    var placemark = new ymaps.Placemark(
+                                        coordinates, {
+                                            'hintContent': address,
+                                            'balloonContent': '<?php echo $row['name']; ?>'
+                                        }, {
+                                            iconLayout: 'default#image',
+                                            iconImageHref: 'img/for_map1.png',
+                                            iconImageSize: [30, 42]
+                                        }
+                                    );
+                 
+                                    myMap.geoObjects.add(placemark);
+                                }
+                            );
+                
+                 <?php } ?>
+            
+                }   
+            
+
+        </script>
+        
+    </div>
+    <?php include "blocks/footer.php"; ?>  
+ 
+  </body>
+</html>
